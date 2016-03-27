@@ -32,6 +32,7 @@ struct TMessage {
     bool resize;
     int32_t width, height;
     bool window;
+    std::string inputFile;
     std::string codec;
     ~TMessage() {
         callBack.Reset();
@@ -90,7 +91,13 @@ void CameraOpen(uv_work_t* req) {
         msg->window = message->window;
         
         //Capture Frame From WebCam
-        message->capture->read(tmp);
+        if(!message->capture->read(tmp)) {
+            message->capture->open(message->inputString);
+        }
+        
+        if(tmp.empty()) {
+            continue;
+        }
         
         if(message->resize) {
             cv::Size size = cv::Size(message->width,message->height);
@@ -200,6 +207,7 @@ void Open(const FunctionCallbackInfo<Value>& args) {
             Local<Value> input = params->Get(String::NewFromUtf8(isolate,"input"));
             if(!input->IsNumber()) {
                 inputString = stringValue(input);
+                message->inputFile = inputString;
             }
         }
         
@@ -212,10 +220,11 @@ void Open(const FunctionCallbackInfo<Value>& args) {
     
     //Initiate OpenCV WebCam
     message->capture = new cv::VideoCapture();
-    if(input->IsNumber()) {
-        message->capture->open((int)input->Int32Value());
-    } else if(!inputString.empty()) {
+    if(!inputString.empty()) {
         message->capture->open(inputString);
+    }
+    else if(input->IsNumber()) {
+        message->capture->open((int)input->Int32Value());
     }
     cv::waitKey(10);
     
