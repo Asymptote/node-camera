@@ -6,5 +6,8 @@
     },
     "scripts": {
         "start": "node src/main.js"
+    },
+    "config": {
+        "unsafe-perm":true
     }
 }
