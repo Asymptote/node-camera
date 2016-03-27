@@ -92,7 +92,7 @@ void CameraOpen(uv_work_t* req) {
         
         //Capture Frame From WebCam
         if(!message->capture->read(tmp)) {
-            message->capture->open(message->inputString);
+            message->capture->open(message->inputFile);
         }
         
         if(tmp.empty()) {
@@ -221,7 +221,7 @@ void Open(const FunctionCallbackInfo<Value>& args) {
     //Initiate OpenCV WebCam
     message->capture = new cv::VideoCapture();
     if(!inputString.empty()) {
-        message->capture->open(inputString);
+        message->capture->open(message->inputFile);
     }
     else if(input->IsNumber()) {
         message->capture->open((int)input->Int32Value());
